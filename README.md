@@ -1,10 +1,10 @@
 # EXPERIMENT-04-INTERRUPT-GENERATION-USING-SENSOR-AND-VISUALIZING-USING-SERIAL-MONITOR
 
-###  DATE: 
+###  DATE: 10/08/26
 
-###  NAME: 
-###  ROLL NO :
-###  DEPARTMENT: 
+###  NAME: SINDHU PRIYA REDDY G
+###  ROLL NO :212224040319
+###  DEPARTMENT: CSE
 ### Aim:
 To Interface a IR Sensor to digital port of iot development board  and generate an interrupt and visualize on the serial monitor 
 
@@ -127,13 +127,112 @@ The diagram below shows how the GPIO pins are connected to the 16 interrupt line
 ## STM 32 CUBE PROGRAM :
 
 
+```
+
+#include "main.h"
+#include "stdio.h"
+
+UART_HandleTypeDef huart2;
+
+int __io_putchar(int ch)
+{
+    HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+    return ch;
+}
+
+void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_USART2_UART_Init(void);
+
+int main(void)
+{
+    HAL_Init();
+    SystemClock_Config();
+    MX_GPIO_Init();
+    MX_USART2_UART_Init();
+
+    while (1);
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == GPIO_PIN_4)
+        printf("Interrupt Generated\n");
+}
+
+static void MX_GPIO_Init(void)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+
+    GPIO_InitStruct.Pin = GPIO_PIN_4;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    HAL_NVIC_SetPriority(EXTI4_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+}
+
+static void MX_USART2_UART_Init(void)
+{
+    huart2.Instance = USART2;
+    huart2.Init.BaudRate = 115200;
+    huart2.Init.WordLength = UART_WORDLENGTH_8B;
+    huart2.Init.StopBits = UART_STOPBITS_1;
+    huart2.Init.Parity = UART_PARITY_NONE;
+    huart2.Init.Mode = UART_MODE_TX_RX;
+    huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+    huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+
+    HAL_UART_Init(&huart2);
+}
+
+void SystemClock_Config(void)
+{
+    RCC_OscInitTypeDef o = {0};
+    RCC_ClkInitTypeDef c = {0};
+
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
+
+    o.OscillatorType = RCC_OSCILLATORTYPE_MSI;
+    o.MSIState = RCC_MSI_ON;
+    o.MSIClockRange = RCC_MSIRANGE_6;
+    o.PLL.PLLState = RCC_PLL_NONE;
+    HAL_RCC_OscConfig(&o);
+
+    c.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
+                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 |
+                  RCC_CLOCKTYPE_HCLK3;
+    c.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
+    c.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    c.APB1CLKDivider = RCC_HCLK_DIV1;
+    c.APB2CLKDivider = RCC_HCLK_DIV1;
+    c.AHBCLK3Divider = RCC_SYSCLK_DIV1;
+
+    HAL_RCC_ClockConfig(&c, FLASH_LATENCY_0);
+}
+
+void Error_Handler(void)
+{
+    while (1);
+}
+
+```
+
 
 ## Output screen shots of serial port utility   :
- 
+
+
+ <img width="1280" height="662" alt="image" src="https://github.com/user-attachments/assets/954306fb-5f6e-4748-8845-1735d533b453" />
+
+
  
  ## Circuit board :
  
- 
+ <img width="544" height="920" alt="image" src="https://github.com/user-attachments/assets/da8656c5-b39b-4de1-88ee-93edea3bc9dc" />
+
  
 ## Result :
 Interfacing a  IR SENSOR and interrupt is generated using external interrupt mode , visualized on serial port 
